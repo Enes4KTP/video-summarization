@@ -17,7 +17,7 @@ config = {
 'cnn_params':{'model':'keras'},
 'use_multiprocessing':True,
 'scene_cut_features':'color',
-'min_scene_length':2,
+'min_scene_length':0.5,
 'scene_cut_thresh':0.65,
 'scene_cut_features_params':{'difference_metric':'correlation'},
 'clustering':'kmeans',
