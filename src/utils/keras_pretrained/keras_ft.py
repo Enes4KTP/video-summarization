@@ -1,4 +1,4 @@
-from keras.preprocessing import image
+import keras.utils as image
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import preprocess_input
 import numpy as np
