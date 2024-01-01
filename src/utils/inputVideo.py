@@ -11,9 +11,11 @@ import matplotlib
 from matplotlib import pyplot as plt
 import math
 import numpy as np
+import pickle
 import shutil
 import time
 import multiprocessing
+from utils.chromadb.chromaService import ChromadbService
 
 class InputVideo:
 
@@ -28,6 +30,7 @@ class InputVideo:
             self.FRAME_WIDTH = self.video.get(cv.CAP_PROP_FRAME_WIDTH)
             self.FRAME_HEIGHT = self.video.get(cv.CAP_PROP_FRAME_HEIGHT)
             self.frame_list = []
+            self.imgList = []
             self.keyframe_list = []
             self.diff_list_dict = {}  # Maps Params to diff list , calculate diff list per param only once
             self.feat_vect_dict = {}  # Maps Params to feature_vect list , calculate features only once
@@ -43,7 +46,9 @@ class InputVideo:
                 shutil.rmtree(self.summarization_data_path)  # Remove the old summarization data storage
 
     def reInit(self):
-        self.video.release()
+        if self.video is not None:
+            self.video.release()
+        self.video = None
         self.video = cv.VideoCapture(self.path)
 
     def getVideoName(self):
@@ -224,8 +229,8 @@ class InputVideo:
                 if self.i2v == None:
                     from src.utils.img2vec_pytorch.img_to_vec import Img2Vec
                     self.i2v = Img2Vec(model='alexnet')
-                feat_list = [i2v.get_vec(img) for img in frame_list]
-                diff_list = [i2v.getPairDifference(feat_list[i], feat_list[i + 1]) for i in range(len(feat_list) - 1)]
+                feat_list = [self.i2v.get_vec(img) for img in frame_list]
+                diff_list = [self.i2v.getPairDifference(feat_list[i], feat_list[i + 1]) for i in range(len(feat_list) - 1)]
                 return diff_list, feat_list
 
             elif (model == 'keras'):
@@ -242,15 +247,15 @@ class InputVideo:
                 if self.dr_model == None:
                     from src.utils.deep_ranking.deep_ranking_model import DeepRankingModel
                     self.dr_model = DeepRankingModel()
-                feat_list = dr_model.getFeatureVectorList(frame_list)
-                diff_list = [dr_model.getPairDifference(feat_list[i], feat_list[i + 1])
+                feat_list = self.dr_model.getFeatureVectorList(frame_list)
+                diff_list = [self.dr_model.getPairDifference(feat_list[i], feat_list[i + 1])
                              for i in range(len(feat_list) - 1)]
 
                 return diff_list, feat_list
 
         def getSiftDiff(params):
             descriptor = params['descriptor']
-            feat_list = local.getFeatureVectorList(imgList, descriptor)
+            feat_list = local.getFeatureVectorList(self.imgList, descriptor)
             diff_list = []
             for i in range(len(feat_list) - 1):
                 kps1, des1 = feat_list[i]
@@ -294,7 +299,7 @@ class InputVideo:
         if showAndWait:
             for i in range(len(frame_list)):
                 if(i != 0):
-                    print(returned_list[i - 1])
+                    print(returned_val[i - 1])
                 showFrameAndWaitOnKey(frame_list[i], i)
 
         if external_list == None:
@@ -462,9 +467,9 @@ class InputVideo:
 
     def cossim(self, vec1, vec2):
         from scipy import spatial
-        return 0.5 * (2 - spatial.distance.cosine(vec1, vec2))  # cosine sim between a and b
-
-    def storeToFirebase(self):
-        from utils.firebase.firebaseService import FirebaseService
-        fb = FirebaseService()
-        fb.storeVideo(self)
+        return 0.5 * (2 - spatial.distance.cosine(vec1, vec2))
+    
+    def storeChroma(self,path):
+        chroma = ChromadbService()
+        chroma.storeImages(path)
+        

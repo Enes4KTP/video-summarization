@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(__file__).replace('src', '', 1))
+from src.utils.imageSearch import ImageSearch
 from   src.utils.inputVideo import InputVideo
 import src.utils.localFeatures as local
 import src.utils.imageHistogram as hist
@@ -15,7 +16,7 @@ config = {
 'sampling_rate':3,
 'use_cached_cnn':False,
 'cnn_params':{'model':'keras'},
-'use_multiprocessing':True,
+'use_multiprocessing':False,
 'scene_cut_features':'color',
 'min_scene_length':0.5,
 'scene_cut_thresh':0.65,
@@ -38,11 +39,12 @@ def summarize(input_video):
     print("######################################################")
     sampled_video = video.getSampledInputVideo(config['sampling_rate'])
     sampled_video.getAdjacentDifferenceList('cnn', config['cnn_params'], loadCNNfromCache=config['use_cached_cnn'])
+    
     if(config['use_multiprocessing']):
         kfs = sampled_video.generateKeyframes_multiprocessing()
     else:
         kfs = sampled_video.generateKeyframes_sequential()
-    os.remove(sampled_video.path)  # remove sampled video
+    sampled_video.reInit()
     kf_path = 'kfs/' + video.getVideoName()[:video.getVideoName().find('.')]
     if(os.path.isdir(kf_path)):
         shutil.rmtree(kf_path)  # remove old results if any
@@ -52,7 +54,9 @@ def summarize(input_video):
     print("Formatted length in seconds: {}".format(video.getFormattedVideoLenghtInSeconds()))
     print("Time: {}".format(time.time() - t1))
     kfs.sort(key = lambda k: k.index)
+    video.storeChroma(kf_path)
     return [kf.image for kf in kfs], video.getFormattedVideoLenghtInSeconds()
+   
 
 
 if __name__ == '__main__':
