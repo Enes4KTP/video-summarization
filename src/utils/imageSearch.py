@@ -3,29 +3,24 @@ import requests
 
 class ImageSearch:
     def search(collection):
-        user_queries = input("Lütfen arama terimlerini virgülle ayırarak yazın: ")
-        query_terms = [query.strip() for query in user_queries.split(",")]
         images, labels = [], []
 
+        user_queries = input("Lütfen arama terimlerini virgülle ayırarak yazın: ")
+        query_terms = [query.strip() for query in user_queries.split(",")]
+
         for query in query_terms:
-            try:
-                retrieved = collection.query(query_texts=[query], include=['data'], n_results=1)
-                
-                for result in retrieved['data']:
-                    frame = 12
-                    time = frame / 3
+            retrieved = collection.query(query_texts=[query], include=['data'], n_results=1)
 
-                    minutes = int(time // 60)
-                    seconds = int(time % 60)
-                    formatted_time = f"{minutes:02d}:{seconds:02d}"
+            frame = 12
+            time = frame / 3
 
-                    for img in result:
-                        images.append(img)
-                        labels.append({"label": query, "time": formatted_time})
-                        
-            except requests.exceptions.ConnectionError as e:
-                # Bağlantı hatası durumunda bir hata oluştuğunu belirt
-                print("Hata: Bağlantı hatası oluştu, PostHog'a erişilemiyor.")
+            minutes = int(time // 60)
+            seconds = int(time % 60)
+            formatted_time = f"{minutes:02d}:{seconds:02d}"
+
+            for img in retrieved['data'][0]:
+                images.append(img)
+                labels.append({"label": query, "time": formatted_time})
 
         fig, axs = plt.subplots(1, len(images), figsize=(18, 6))
 

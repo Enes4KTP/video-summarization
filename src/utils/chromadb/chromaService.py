@@ -30,13 +30,13 @@ class ChromadbService:
                 embedding_function=self.embedding_function,
                 data_loader=self.image_loader
                 )
+            folder_path = summarization_path
+            file_names = [file for file in os.listdir(folder_path) if file.lower().endswith('.jpg')]
+            file_names_only = [os.path.splitext(file)[0] for file in file_names]
+            image_uris = [os.path.join(folder_path, file) for file in file_names]
+            ids = [str(i) for i in range(len(file_names_only))]
+            collection.add(ids=ids, uris=image_uris)
             
-        folder_path = summarization_path
-        file_names = [file for file in os.listdir(folder_path) if file.lower().endswith('.jpg')]
-        file_names_only = [os.path.splitext(file)[0] for file in file_names]
-        image_uris = [os.path.join(folder_path, file) for file in file_names]
-        ids = [str(i) for i in range(len(file_names_only))]
-        collection.add(ids=ids, uris=image_uris)
         ImageSearch.search(collection)
 
 
