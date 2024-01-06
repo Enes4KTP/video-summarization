@@ -1,5 +1,6 @@
 import sys
 import os
+from utils.imageSearch import ImageSearch
 sys.path.append(os.path.dirname(__file__).replace('src', '', 1))
 import src.utils.smooth as smooth
 from src.utils.bow.vbow import BOV
@@ -407,6 +408,10 @@ class InputVideo:
         kfs = []
         scene_list = self.writeAndGetScenes(self.getSceneBoundariesFromThreshCut(
             self.config['scene_cut_features'],self.config['scene_cut_features_params'], self.config['min_scene_length']))
+        
+        image_search = ImageSearch()
+        image_search.calculator(scene_list,self.getFrameRate)
+
         for scene in scene_list:
             kfs += self.extractKeyframesFromScene(scene)
 

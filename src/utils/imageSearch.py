@@ -1,7 +1,11 @@
 from matplotlib import pyplot as plt
-import requests
 
 class ImageSearch:
+    def calculator(self,scene_list,getFrameRate):
+        for i, scene in enumerate(scene_list):
+            print(f"Sahne {i} - Başlangıç: {scene.starting_index / getFrameRate()} s, Bitiş: {scene.ending_index / getFrameRate()} s")
+        self.scene = scene
+        
     def search(collection):
         images, labels = [], []
 
@@ -9,10 +13,9 @@ class ImageSearch:
         query_terms = [query.strip() for query in user_queries.split(",")]
 
         for query in query_terms:
-            retrieved = collection.query(query_texts=[query], include=['data'], n_results=1)
+            retrieved = collection.query(query_texts=[query], include=['data'], n_results=3)
 
-            frame = 12
-            time = frame / 3
+            time = 12
 
             minutes = int(time // 60)
             seconds = int(time % 60)

@@ -47,7 +47,7 @@ def summarize(input_video):
     sampled_video.reInit()
     kf_path = 'kfs/' + video.getVideoName()[:video.getVideoName().find('.')]
     if(os.path.isdir(kf_path)):
-        shutil.rmtree(kf_path)  # remove old results if any
+        shutil.rmtree(kf_path)  
     os.makedirs(kf_path)
     for i, kf in enumerate(kfs):
         cv.imwrite('{}/{}.jpg'.format(kf_path, i), kf.image)
