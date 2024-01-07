@@ -1,0 +1,14 @@
+opencv-python
+numpy
+chromadb
+scikit-learn
+scikit-image
+tensorflow
+torch
+torchvision
+open-clip-torch
+nets
+preprocessing
+keras
+matplotlib
+pyclustering

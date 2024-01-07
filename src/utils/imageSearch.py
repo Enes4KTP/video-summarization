@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import mpld3
 
 class ImageSearch:
     def calculator(self,scene_list,getFrameRate):
@@ -13,7 +14,7 @@ class ImageSearch:
         query_terms = [query.strip() for query in user_queries.split(",")]
 
         for query in query_terms:
-            retrieved = collection.query(query_texts=[query], include=['data'], n_results=3)
+            retrieved = collection.query(query_texts=[query], include=['data'], n_results=1)
 
             time = 12
 
@@ -33,4 +34,4 @@ class ImageSearch:
             ax.set_title(f"{label['label']}\n{label['time']}")
             ax.axis("off")
 
-        plt.show()
+        mpld3.show()

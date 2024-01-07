@@ -35,13 +35,13 @@ class DeepRankingModel:
         return convnet_model
 
     def convnet_model(self):
-    	vgg_model = VGG16(weights=None, include_top=False)
-    	x = vgg_model.output
-    	x - GlobalAveragePooling2D()(x)
-    	x = Dense(4096, activation='relu')(x)
-    	x = Dropout(0.6)(x)
-    	x = Dense(4096, activation='relu')(x)
-    	x = Dropout(0.6)(x)
+        vgg_model = VGG16(weights=None, include_top=False)
+        x = vgg_model.output
+        x - GlobalAveragePooling2D()(x)
+        x = Dense(4096, activation='relu')(x)
+        x = Dropout(0.6)(x)
+        x = Dense(4096, activation='relu')(x)
+        x = Dropout(0.6)(x)
 
     def deep_rank_model(self):
 
