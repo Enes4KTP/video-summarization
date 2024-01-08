@@ -7,7 +7,7 @@ class ImageSearch:
             print(f"Sahne {i} - Başlangıç: {scene.starting_index / getFrameRate()} s, Bitiş: {scene.ending_index / getFrameRate()} s")
         self.scene = scene
         
-    def search(collection):
+    def search(self,collection):
         images, labels = [], []
 
         user_queries = input("Lütfen arama terimlerini virgülle ayırarak yazın: ")
