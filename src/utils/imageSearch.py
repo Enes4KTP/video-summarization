@@ -2,36 +2,40 @@ from matplotlib import pyplot as plt
 import mpld3
 
 class ImageSearch:
-    def calculator(self,scene_list,getFrameRate):
-        for i, scene in enumerate(scene_list):
-            print(f"Sahne {i} - Başlangıç: {scene.starting_index / getFrameRate()} s, Bitiş: {scene.ending_index / getFrameRate()} s")
-        self.scene = scene
-        
     def search(self,collection):
-        images, labels = [], []
+        while True:
+            images, labels, metadata = [], [], []
 
-        user_queries = input("Lütfen arama terimlerini virgülle ayırarak yazın: ")
-        query_terms = [query.strip() for query in user_queries.split(",")]
+            user_queries = input("Lütfen arama terimlerini virgülle ayırarak yazın: (Çıkmak için q yazınız.)")
+            query_terms = [query.strip() for query in user_queries.split(",")]
 
-        for query in query_terms:
-            retrieved = collection.query(query_texts=[query], include=['data'], n_results=1)
+            if user_queries.lower() == 'q':
+                break
 
-            time = 12
+            for query in query_terms:
+                retrieved = collection.query(query_texts=[query], include=['data', 'metadatas'], n_results=1)
 
-            minutes = int(time // 60)
-            seconds = int(time % 60)
-            formatted_time = f"{minutes:02d}:{seconds:02d}"
+                for img, meta in zip(retrieved['data'][0], retrieved['metadatas'][0]):
+                    images.append(img)
+                    labels.append({"label": query})
+                    metadata.append({"start_time": meta["start_time"]})
 
-            for img in retrieved['data'][0]:
-                images.append(img)
-                labels.append({"label": query, "time": formatted_time})
+            fig, axs = plt.subplots(1, len(images), figsize=(18, 6))
 
-        fig, axs = plt.subplots(1, len(images), figsize=(18, 6))
+            for i, (image, label, meta) in enumerate(zip(images, labels, metadata)):
+                ax = axs if len(images) == 1 else axs[i]
+                ax.imshow(image)
+                ax.text(
+                    0.5,  # x koordinatı
+                    1.05,  # y koordinatı (negatif, altta olacak şekilde)
+                    f"{label['label']} - Başlangıç Süresi: {meta['start_time']} s",
+                    fontsize=12,  # Metin boyutu
+                    ha="center",  # Yatay hizalama: 'center'
+                    va="center",  # Dikey hizalama: 'center'
+                    transform=ax.transAxes  # Koordinat sistemini belirtme
+                )
+                ax.axis("off")
 
-        for i, (image, label) in enumerate(zip(images, labels)):
-            ax = axs if len(images) == 1 else axs[i]
-            ax.imshow(image)
-            ax.set_title(f"{label['label']}\n{label['time']}")
-            ax.axis("off")
+            mpld3.show()
 
-        mpld3.show()
+        print("Program Sonlandırıldı!")

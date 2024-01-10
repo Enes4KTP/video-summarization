@@ -19,7 +19,6 @@ import multiprocessing
 from utils.chromadb.chromaService import ChromadbService
 
 class InputVideo:
-
     def __init__(self,path,config,resize = False):
         self.path = path
         self.video = cv.VideoCapture(path)
@@ -403,14 +402,18 @@ class InputVideo:
             return final_kfs
         else:
             return kfs
-
+        
+    sceneList = None
+    getFrames = None
     def generateKeyframes_sequential(self):
+        global sceneList
+        global getFrames
         kfs = []
         scene_list = self.writeAndGetScenes(self.getSceneBoundariesFromThreshCut(
             self.config['scene_cut_features'],self.config['scene_cut_features_params'], self.config['min_scene_length']))
         
-        image_search = ImageSearch()
-        image_search.calculator(scene_list,self.getFrameRate)
+        sceneList = scene_list
+        getFrames = self.getFrameRate
 
         for scene in scene_list:
             kfs += self.extractKeyframesFromScene(scene)
@@ -476,5 +479,5 @@ class InputVideo:
     
     def storeChroma(self,path):
         chroma = ChromadbService()
-        chroma.storeImages(path)
+        chroma.storeImages(path,sceneList,getFrames)
         

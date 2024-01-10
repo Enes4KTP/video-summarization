@@ -11,7 +11,7 @@ class ChromadbService:
         self.embedding_function = OpenCLIPEmbeddingFunction()
         self.image_loader = ImageLoader()
 
-    def storeImages(self,summarization_path):
+    def storeImages(self,summarization_path,scene_list,frameRate):
         self.path = summarization_path
         cleaned_name = summarization_path.replace("/", "").replace("_", "")
 
@@ -27,16 +27,31 @@ class ChromadbService:
             collection = existing_collection
         else:
             collection = self.client.create_collection(
-                name= cleaned_name,
-                embedding_function=self.embedding_function,
-                data_loader=self.image_loader
-                )
+            name=cleaned_name,
+            embedding_function=self.embedding_function,
+            data_loader=self.image_loader
+            )
             folder_path = summarization_path
             file_names = [file for file in os.listdir(folder_path) if file.lower().endswith('.jpg')]
             file_names_only = [os.path.splitext(file)[0] for file in file_names]
             image_uris = [os.path.join(folder_path, file) for file in file_names]
             ids = [str(i) for i in range(len(file_names_only))]
-            collection.add(ids=ids, uris=image_uris)  
+
+            scene_info = []
+            for i, scene in enumerate(scene_list):
+                start_time = max(0, (round((scene.starting_index / frameRate()) - 1)))
+                end_time = max(0, (round((scene.ending_index / frameRate()) - 1)))
+                scene_info.append({"scene_id": i, "start_time": start_time, "end_time": end_time})
+                print(f"Sahne {i} - Başlangıç: {start_time} s, Bitiş: {end_time} s")
+
+            collection.add(
+                ids=ids,
+                uris=image_uris,
+                metadatas=[
+                    {"start_time": scene_info[i]["start_time"], "end_time": scene_info[i]["end_time"]}
+                    for i in range(len(ids))
+                ]
+            )
             
         image_search = ImageSearch()
         image_search.search(collection)
