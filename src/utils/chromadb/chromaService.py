@@ -43,7 +43,6 @@ class ChromadbService:
                 start_time = max(0, (round((scene.starting_index / frameRate()))))
                 end_time = max(0, (round((scene.ending_index / frameRate()))))
                 scene_info.append({"scene_id": i, "start_time": start_time, "end_time": end_time})
-                print(f"Sahne {i} - Başlangıç: {start_time} s, Bitiş: {end_time} s")
 
             collection.add(
                 ids=ids,
