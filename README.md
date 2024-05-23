@@ -8,6 +8,7 @@ In this project, we approach video summarization as a keyframe extraction proces
 ### Usage
 ```sh
 $ pip install -r requirements.txt
+$ pip install -r requirements2.txt
 $ python src/main.py test.mp4
 ```
 ### Detailed Report
